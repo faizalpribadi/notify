@@ -1,0 +1,94 @@
+<html>
+<head>
+    <link rel="stylesheet" href="public/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="public/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="public/angularjs-toaster/toaster.css"/>
+</head>
+
+<body ng-app="app">
+
+<div>
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
+        <a class="navbar-brand" href="#/"><i class="fa fa-github fa-lg"></i> Realtime Notification</a>
+        <ul class="nav navbar-nav">
+            <li class="">
+                <a href="#/"><i class="fa fa-amazon fa-lg"></i> Home</a>
+            </li>
+            <li>
+                <a href="#/notification"><i class="fa fa-facebook-official fa-lg"></i> Notification</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div ng-view></div>
+
+<script src="public/angular/angular.min.js"></script>
+<script src="public/angular-route/angular-route.min.js"></script>
+<script src="public/angular-animate/angular-animate.min.js"></script>
+<script src="public/angularjs-toaster/toaster.js"></script>
+<script src="public/moment/moment.js"></script>
+<script src="public/angular-moment/angular-moment.min.js"></script>
+<script src="/api/notification/socket.io.js"></script>
+<script>
+    angular
+            .module('app', ['ngRoute', 'angularMoment', 'ngAnimate', 'toaster'])
+            .config(function($routeProvider) {
+                $routeProvider
+                        .when('/', {
+                            templateUrl: 'template/home.html',
+                            controller: 'Default'
+                        })
+                        .when('/notification', {
+                            templateUrl: 'template/notification.html',
+                            controller: 'Default'
+                        });
+            })
+            .controller('Default', function($scope, Socket, toaster) {
+                $scope.socket = Socket.all();
+                $scope.forms = {
+                    name: '',
+                    link: '',
+                    desc: '',
+                    created_at: new Date()
+                };
+
+                $scope.save = function() {
+                    if ($scope.forms.length === 0) {
+                        toaster.pop('error', 'error');
+                    }
+                    Socket.save($scope.forms);
+                    toaster.pop('success', 'You have new notification', $scope.forms.desc);
+                }
+            })
+            .service('Socket', function($rootScope) {
+                function Notification() {
+                    var self = this;
+                    self.datas = [];
+
+                    var socket = io.connect('localhost:3000', {
+                        path: '/api/notification'
+                    });
+                    socket.on('data', function(data) {
+                        $rootScope.$apply(function() {
+                            self.datas.push(data);
+                        })
+                    });
+                    self.all = function() {
+                        return self.datas;
+                    };
+                    self.save = function(data) {
+                        if (typeof data === 'object') {
+                            socket.emit('save', data);
+                        }
+                    }
+                }
+
+                var notification = new Notification();
+                return notification;
+            })
+            .run(function(amMoment, $rootScope) {
+            });
+</script>
+</body>
+</html>

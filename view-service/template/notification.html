@@ -1,0 +1,25 @@
+<div ng-controller="Default">
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5><i class="fa fa-bell-o fa-lg"></i> NOTIFICATIONS</h5>
+            </div>
+            <div class="panel-body">
+                <div ng-repeat="data in socket">
+                    <ul class="list-group" ng-repeat="val in data">
+                        <li class="list-group-item">
+                            <a href="{{val.link}}" class="text-left pull-left"><i class="fa fa-book fa-lg"></i> {{val.name}}</a><div class="clearfix"></div>
+                            <span class="text-center">{{val.desc}}</span>
+                            <small am-time-ago="val.created_at" class="text-right pull-right"></small>
+                            <div class="clearfix"></div>
+                            <button class="btn btn-default" ng-model="forms.like"><i class="fa fa-facebook"></i> Like</button>
+                            <button class="btn btn-info" value="{{forms.comment}}"><i class="fa fa-comment"></i> Comment</button>
+                            <button class="btn btn-danger" value="{{forms.delete}}"><i class="fa fa-desktop"></i> Delete</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div><div class="clearfix"></div>
+    </div>
+</div>
